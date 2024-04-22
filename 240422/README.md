@@ -1,5 +1,5 @@
 # 第一回勉強会
-Pytorchのチュートリアル(FashionMNISTを用いたクラス分類)
+Pytorchのチュートリアル(FashionMNISTを用いたクラス分類)  
 https://pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html
 
 ## 目的
