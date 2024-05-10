@@ -32,6 +32,7 @@ class CustomDataset(Dataset):
 
         return image, label
 
+# データ拡張
 transform = transforms.Compose([
     # transforms.Resize((128, 128)),
     transforms.Grayscale(),
