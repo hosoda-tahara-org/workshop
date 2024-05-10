@@ -12,3 +12,8 @@ Pytorchでロードしたデータをmatplotlibで表示する際、データの
 X = X.to('cpu').detach().numpy().transpose(1, 2, 0)
 ```
 
+## その他
+pytorchチュートリアルの日本語版があった  
+https://yutaroogawa.github.io/pytorch_tutorials_jp/
+
+これの `0. PyTorch入門 > [8] クイックスタート` が今回のに該当する
