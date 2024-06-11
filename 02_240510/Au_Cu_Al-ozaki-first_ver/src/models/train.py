@@ -7,6 +7,7 @@ from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 from unet import UNet
 from pathlib import Path
+from tqdm import tqdm
 
 # Datasetの作成
 class CustomDataset(Dataset):
@@ -39,12 +40,12 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-image_dir = "./data/interim/images"
-label_dir = "./data/interim/labels"
+image_dir = "./data/interim/split/images"
+label_dir = "./data/interim/split/labels"
 train_dataset = CustomDataset(image_dir=image_dir, label_dir=label_dir, transform=transform)
 
 # Dataloaderの作成
-batch_size = 32
+batch_size = 8
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 # GPU,モデルの定義
@@ -56,7 +57,7 @@ criterion = nn.BCEWithLogitsLoss().to(device)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # トレーニング
-num_epochs = 10
+num_epochs = 2
 train_losses = []
 valid_losses = []
 
@@ -66,19 +67,32 @@ for epoch in range(num_epochs):
     model.train()
     train_loss = 0
 
-    for batch in train_dataloader:
-        inputs, labels = batch[0], batch[1]
+    # with tqdm(self.train_loader, leave=False) as pbar:
+    #         for batch in pbar:
+    #             inputs, labels = batch[0].to(self.device), batch[1].to(self.device)
+    #             outputs = self.model(inputs)
+    #             loss = self.criterion(outputs, labels)
+    #             self.optimizer.zero_grad()
+    #             loss.backward()
+    #             self.optimizer.step()
+    #             train_loss += loss.item() * inputs.size(0)
+                
+    with tqdm(train_dataloader, leave=False) as pbar:
+        for batch in pbar:
+            inputs, labels = batch[0], batch[1]
 
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        train_loss += loss.item()
+            train_loss += loss.item()
     
     average_train_loss = train_loss / len(train_dataloader)
     train_losses.append(average_train_loss)
+
+    print(f"Epoch [{epoch+1}/{num_epochs}], Train Loss: {average_train_loss:.4f}")
 
 # モデルの保存
 torch.save(model.state_dict(), "unet_model.pth")
@@ -94,37 +108,37 @@ plt.legend()
 plt.show()
 
 
-import torchvision.utils as vutils
-import os
+# import torchvision.utils as vutils
+# import os
 
-# ./predフォルダの作成（存在しない場合）
-pred_dir = './pred'
-if not os.path.exists(pred_dir):
-    os.makedirs(pred_dir)
+# # ./predフォルダの作成（存在しない場合）
+# pred_dir = './pred'
+# if not os.path.exists(pred_dir):
+#     os.makedirs(pred_dir)
 
-# 1. 検証データセットの準備
-valid_image_dir = "./data/raw/images"
-valid_label_dir = "./data/raw/labels"
-valid_dataset = CustomDataset(image_dir=valid_image_dir, label_dir=valid_label_dir, transform=transform)
+# # 1. 検証データセットの準備
+# valid_image_dir = "./data/raw/images"
+# valid_label_dir = "./data/raw/labels"
+# valid_dataset = CustomDataset(image_dir=valid_image_dir, label_dir=valid_label_dir, transform=transform)
 
-# 2. DataLoaderの作成
-valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
+# # 2. DataLoaderの作成
+# valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
 
-# 3. モデルの読み込み
-model = UNet().to(device)
-model.load_state_dict(torch.load("unet_model.pth"))
-model.eval()
+# # 3. モデルの読み込み
+# model = UNet().to(device)
+# model.load_state_dict(torch.load("unet_model.pth"))
+# model.eval()
 
-# 4. 推論の実行
-with torch.no_grad():
-    for i, batch in enumerate(valid_dataloader):
-        inputs = batch[0].to(device)
-        outputs = model(inputs)
+# # 4. 推論の実行
+# with torch.no_grad():
+#     for i, batch in enumerate(valid_dataloader):
+#         inputs = batch[0].to(device)
+#         outputs = model(inputs)
 
-        for j in range(outputs.size(0)):
-            output = outputs[j].cpu().detach()
-            output_img = output.permute(1, 2, 0).numpy()
+#         for j in range(outputs.size(0)):
+#             output = outputs[j].cpu().detach()
+#             output_img = output.permute(1, 2, 0).numpy()
 
-            # 画像を保存
-            save_path = os.path.join(pred_dir, f'pred_{i}_{j}.png')
-            vutils.save_image(output, save_path)
+#             # 画像を保存
+#             save_path = os.path.join(pred_dir, f'pred_{i}_{j}.png')
+#             vutils.save_image(output, save_path)

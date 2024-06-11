@@ -17,16 +17,14 @@ def split_image(image_path, rows, columns, output_dir):
             crop_img.save(os.path.join(output_dir, f"{os.path.splitext(os.path.basename(image_path))[0]}_{i}_{j}.png"))
 
 if __name__ == "__main__":
-    """
-    ROWS, COLUMNS = 3, 4
-    IMAGE_PATH = "./data/raw/images/0.png"
-    OUTPUT_DIR = "./outputs/figures/split"
+    # ROWS, COLUMNS = 6, 4
+    # IMAGE_PATH = "./data/raw/images/0.png"
+    # OUTPUT_DIR = "./outputs/figures/split"
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    split_image(IMAGE_PATH, ROWS, COLUMNS, OUTPUT_DIR)
-    """
+    # os.makedirs(OUTPUT_DIR, exist_ok=True)
+    # split_image(IMAGE_PATH, ROWS, COLUMNS, OUTPUT_DIR)
 
-    ROWS, COLUMNS = 3, 4
+    ROWS, COLUMNS = 6, 8
     INPUT_DIR = "./data/raw"
     OUTPUT_DIR = "./data/interim/split"
     
